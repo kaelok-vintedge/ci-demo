@@ -47,6 +47,8 @@ public static class BookingEndpoints
                 BookingResultStatus.ClassStarted => Results.Conflict(new { error = "This class has already started." }),
                 BookingResultStatus.CapacityFull => Results.Conflict(new { error = "This class is full." }),
                 BookingResultStatus.AlreadyBooked => Results.Conflict(new { error = "You have already booked this class." }),
+                BookingResultStatus.TooCloseToStart => Results.Conflict(
+                    new { error = $"Bookings close {BookingService.BookingCutoffMinutes} minutes before the class starts." }),
                 _ => Results.Problem("Unexpected booking result."),
             };
         });
