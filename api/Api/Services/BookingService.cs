@@ -10,6 +10,7 @@ public enum BookingResultStatus
     ClassStarted,
     CapacityFull,
     AlreadyBooked,
+    TooCloseToStart
 }
 
 public sealed record BookingResult(BookingResultStatus Status, Booking? Booking = null);
@@ -20,6 +21,8 @@ public sealed record BookingResult(BookingResultStatus Status, Booking? Booking 
 // cost depends on whether the session is peak.
 public sealed class BookingService
 {
+    public const int BookingCutoffMinutes = 30;
+
     private readonly Lock _lock = new();
     private readonly List<ClassSession> _sessions;
     private readonly List<Booking> _bookings = [];
@@ -64,6 +67,11 @@ public sealed class BookingService
             if (session.StartsAtUtc < DateTime.UtcNow)
             {
                 return new BookingResult(BookingResultStatus.ClassStarted);
+            }
+
+            if (session.StartsAtUtc <= DateTime.UtcNow.AddMinutes(BookingCutoffMinutes))
+            {
+                return new BookingResult(BookingResultStatus.TooCloseToStart);
             }
 
             var currentCount = _bookings.Count(b => b.ClassSessionId == classSessionId);
