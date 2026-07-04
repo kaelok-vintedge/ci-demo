@@ -80,7 +80,7 @@ public sealed class BookingService
                 return new BookingResult(BookingResultStatus.AlreadyBooked);
             }
 
-            var cost = session.IsPeak ? session.CreditsPeak : session.CreditsOffPeak;
+            var cost = session.CreditsPeak;
             var booking = new Booking
             {
                 Id = _nextBookingId++,
