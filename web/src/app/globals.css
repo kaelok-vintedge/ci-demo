@@ -1,0 +1,23 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: system-ui, sans-serif;
+  line-height: 1.5;
+  margin: 0 auto;
+  max-width: 40rem;
+  padding: 2rem 1rem;
+  color: #1a2420;
+  background: #f7f9f8;
+}
+
+button {
+  cursor: pointer;
+  font: inherit;
+  padding: 0.3rem 0.9rem;
+}
+
+li {
+  margin-bottom: 0.75rem;
+}

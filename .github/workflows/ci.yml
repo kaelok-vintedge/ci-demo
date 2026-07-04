@@ -1,0 +1,43 @@
+name: CI
+
+# The quality gate. Runs on every PR, and is reused by deploy.yml
+# (via workflow_call) so nothing can deploy without passing these jobs.
+on:
+  pull_request:
+  workflow_call: {}
+
+jobs:
+  api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+      - name: Build
+        run: dotnet build api/Api.Tests --configuration Release
+      - name: Test
+        run: dotnet test api/Api.Tests --configuration Release --no-build
+
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Install
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Test
+        run: npm run test
+      - name: Build
+        run: npm run build

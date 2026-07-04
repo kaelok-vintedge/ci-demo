@@ -1,0 +1,40 @@
+name: Deploy
+
+# Same shape as the real platform's pipeline, plus the one thing it lacks:
+# a test gate. Staging "deploys" automatically on push to develop;
+# production only when you manually run this workflow on main. The deploy
+# steps are echoes — swap them for the real docker/ECS steps on a real
+# project and the gating works identically.
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch: {}
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  tests:
+    uses: ./.github/workflows/ci.yml
+
+  deploy-staging:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    needs: tests # red tests = this job never runs
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - name: Fake staging deploy
+        run: |
+          echo "This is where the real pipeline builds the Docker image and rolls out ECS."
+          echo "Deploying to STAGING... done (pretend)."
+
+  deploy-prod:
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    needs: tests # the manual click approves; the tests still gate
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Fake production deploy
+        run: |
+          echo "Deploying to PRODUCTION... done (pretend)."
