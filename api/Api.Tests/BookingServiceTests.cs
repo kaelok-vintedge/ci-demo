@@ -101,4 +101,24 @@ public class BookingServiceTests
         Assert.Equal("Alice", result.Booking.MemberName);
         Assert.Equal(1, service.CountBookings(1));
     }
+
+    [Fact]
+    public void CreateBooking_SessionStartingSoon_ReturnsTooCloseToStart()
+    {
+        var service = new BookingService([Session(startsAtUtc: DateTime.UtcNow.AddMinutes(10))]);
+
+        var result = service.CreateBooking(1, "Alice");
+
+        Assert.Equal(BookingResultStatus.TooCloseToStart, result.Status);
+    }
+
+    [Fact]
+    public void CreateBooking_SessionJustOutsideCutoff_ReturnsSuccess()
+    {
+        var service = new BookingService([Session(startsAtUtc: DateTime.UtcNow.AddMinutes(31))]);
+
+        var result = service.CreateBooking(1, "Alice");
+
+        Assert.Equal(BookingResultStatus.Success, result.Status);
+    }
 }
